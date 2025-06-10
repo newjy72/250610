@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>퀴즈 타이머</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-top: 20px;
+    }
+    #question {
+      font-size: 2.5rem;
+      margin: 40px auto;
+      width: 80%;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    #timer {
+      font-size: 2rem;
+      color: red;
+    }
+    input[type="file"] {
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>퀴즈 타이머</h1>
+  <input type="file" id="fileInput" accept=".txt">
+  <div id="question">문제를 업로드하세요.</div>
+  <div id="timer">제한시간: <span id="time">30</span>초</div>
+  <button onclick="nextQuestion()">다음 문제</button>
+
+  <script>
+    let questions = [];
+    let currentIndex = 0;
+    let timeLeft = 30;
+    let timer;
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        questions = text.split('\n').filter(line => line.trim() !== '');
+        currentIndex = 0;
+        startQuestion();
+      }
+      reader.readAsText(file);
+    });
+
+    function startQuestion() {
+      if (currentIndex >= questions.length) {
+        document.getElementById('question').textContent = '퀴즈 종료!';
+        document.getElementById('timer').textContent = '';
+        return;
+      }
+      document.getElementById('question').textContent = questions[currentIndex];
+      timeLeft = 30;
+      document.getElementById('time').textContent = timeLeft;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('time').textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          document.getElementById('question').textContent = '시간 초과! 다음 문제를 눌러주세요';
+        }
+      }, 1000);
+    }
+
+    function nextQuestion() {
+      currentIndex++;
+      startQuestion();
+    }
+  </script>
+</body>
+</html>
